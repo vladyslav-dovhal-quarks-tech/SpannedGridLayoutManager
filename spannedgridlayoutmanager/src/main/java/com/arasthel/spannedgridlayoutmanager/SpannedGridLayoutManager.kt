@@ -551,8 +551,9 @@ open class SpannedGridLayoutManager(val orientation: Orientation,
         }
         val end = layoutEnd +
                 if (totalTwoLastRowRect <= spans) {
-                    if (totalTwoLastRowRectMap[rectsHelper.rows.size - 2] ?: 0 == 2 &&
-                            totalTwoLastRowRectMap[rectsHelper.rows.size - 1] ?: 0 == 1) {
+                    if (totalTwoLastRowRectMap[rectsHelper.rows.size - 2] ?: 0 >= (spans - 1) &&
+                            totalTwoLastRowRectMap[rectsHelper.rows.size - 1] ?: 0 == (spans - 2) &&
+                            (itemCount % spans < (spans - 1))) {
                         0
                     } else {
                         rectsHelper.itemSize
@@ -606,7 +607,7 @@ open class SpannedGridLayoutManager(val orientation: Orientation,
             }
 
             override fun getVerticalSnapPreference(): Int {
-                return LinearSmoothScroller.SNAP_TO_START
+                return SNAP_TO_START
             }
         }
 
