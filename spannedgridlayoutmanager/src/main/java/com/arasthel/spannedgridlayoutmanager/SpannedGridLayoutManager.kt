@@ -231,7 +231,7 @@ open class SpannedGridLayoutManager(val orientation: Orientation,
 
         // Restore scroll position based on first visible view
         val pendingScrollToPosition = pendingScrollToPosition
-        if (itemCount != 0 && pendingScrollToPosition != null && pendingScrollToPosition >= spans) {
+        if (state.itemCount != 0 && pendingScrollToPosition != null && pendingScrollToPosition >= spans) {
 
             val currentRow = rectsHelper.rows.filter { (_, value) -> value.contains(pendingScrollToPosition) }.keys.firstOrNull()
 
@@ -249,8 +249,8 @@ open class SpannedGridLayoutManager(val orientation: Orientation,
 
         // Check if after changes in layout we aren't out of its bounds
         val overScroll = scroll + size - layoutEnd - getPaddingEndForOrientation()
-        val isLastItemInScreen = (0 until childCount).map { getPosition(getChildAt(it)!!) }.contains(itemCount - 1)
-        val allItemsInScreen = itemCount == 0 || (firstVisiblePosition == 0 && isLastItemInScreen)
+        val isLastItemInScreen = (0 until childCount).map { getPosition(getChildAt(it)!!) }.contains(state.itemCount - 1)
+        val allItemsInScreen = state.itemCount == 0 || (firstVisiblePosition == 0 && isLastItemInScreen)
         if (!allItemsInScreen && overScroll > 0) {
             // If we are, fix it
             scrollBy(overScroll, state)
@@ -549,11 +549,12 @@ open class SpannedGridLayoutManager(val orientation: Orientation,
             val value = totalTwoLastRowRectMap[key] ?: 0
             totalTwoLastRowRect += value
         }
+        val spanSize = spanSizeLookup?.getSpanSize(state.itemCount - 1) ?: SpanSize(1, 1)
         val end = layoutEnd +
-                if (totalTwoLastRowRect <= spans) {
+                if (totalTwoLastRowRect <= spans && spanSize.width != spans) {
                     if (totalTwoLastRowRectMap[rectsHelper.rows.size - 2] ?: 0 >= (spans - 1) &&
                             totalTwoLastRowRectMap[rectsHelper.rows.size - 1] ?: 0 == (spans - 2) &&
-                            (itemCount % spans < (spans - 1))) {
+                            (state.itemCount % spans < (spans - 1))) {
                         0
                     } else {
                         rectsHelper.itemSize
