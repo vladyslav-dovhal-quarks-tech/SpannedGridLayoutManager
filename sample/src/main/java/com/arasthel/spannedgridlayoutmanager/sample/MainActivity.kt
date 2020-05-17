@@ -35,14 +35,13 @@ class MainActivity: android.support.v7.app.AppCompatActivity() {
 
         spannedGridLayoutManager.spanSizeLookup = SpannedGridLayoutManager.SpanSizeLookup { position ->
             if (position == 0){
-                SpanSize(4, 1)
+                SpanSize(4, 1, 150f)
             } else if (adapter.clickedItems[position]) {
                 SpanSize(2, 2)
             } else {
                 SpanSize(1, 1)
             }
         }
-        spannedGridLayoutManager.setHeaderViewHeight(150f)
         recyclerview.adapter = adapter
     }
 

@@ -111,15 +111,6 @@ open class SpannedGridLayoutManager(val orientation: Orientation,
     protected var pendingScrollToPosition: Int? = null
 
     /**
-     * Header height
-     */
-    var headerViewHeight: Float? = null
-
-    fun setHeaderViewHeight(height: Float) {
-        headerViewHeight = height
-    }
-
-    /**
      * Whether item order will be kept along re-creations of this LayoutManager with different
      * configurations of not. Default is false. Only set to true if this condition is met.
      * Otherwise, scroll bugs will happen.
@@ -964,14 +955,15 @@ open class RectsHelper(val layoutManager: SpannedGridLayoutManager,
             )
             it.contains(itemRect)
         }
-        val requiredHeight = if (layoutManager.headerViewHeight != null)
-            layoutManager.headerViewHeight!! / (layoutManager.width / layoutManager.spans)
+        //Calculate view height dynamically
+        val requiredHeight = if (layoutManager.spanSizeLookup?.getSpanSize(position)?.viewHeight != null)
+            layoutManager.spanSizeLookup?.getSpanSize(position)?.viewHeight!! / (layoutManager.width / layoutManager.spans)
         else
             null
         return RectF(lane.left,
                 lane.top,
                 lane.left + spanSize.width,
-                if (position == 0 && requiredHeight != null)
+                if (requiredHeight != null)
                     lane.top + requiredHeight
                 else
                     lane.top + spanSize.height)
@@ -1054,4 +1046,4 @@ open class RectsHelper(val layoutManager: SpannedGridLayoutManager,
 /**
  * Helper to store width and height spans
  */
-class SpanSize(val width: Int, val height: Int)
+class SpanSize(val width: Int, val height: Int, val viewHeight: Float? = null)
