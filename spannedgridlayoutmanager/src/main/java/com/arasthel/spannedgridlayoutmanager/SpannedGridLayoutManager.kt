@@ -6,6 +6,7 @@ package com.arasthel.spannedgridlayoutmanager
 
 import android.graphics.PointF
 import android.graphics.Rect
+import android.graphics.RectF
 import android.os.Parcel
 import android.os.Parcelable
 import android.support.v7.widget.LinearSmoothScroller
@@ -13,6 +14,7 @@ import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.util.SparseArray
 import android.view.View
+import kotlin.math.roundToInt
 
 
 /**
@@ -87,6 +89,7 @@ open class SpannedGridLayoutManager(val orientation: Orientation,
      * Start of the layout. Should be [getPaddingEndForOrientation] + first visible item top
      */
     protected var layoutStart = 0
+
     /**
      * End of the layout. Should be [layoutStart] + last visible item bottom + [getPaddingEndForOrientation]
      */
@@ -100,12 +103,21 @@ open class SpannedGridLayoutManager(val orientation: Orientation,
     /**
      * Cache of rects for layouted views
      */
-    protected val childFrames = mutableMapOf<Int, Rect>()
+    protected val childFrames = mutableMapOf<Int, RectF>()
 
     /**
      * Temporary variable to store wanted scroll by [scrollToPosition]
      */
     protected var pendingScrollToPosition: Int? = null
+
+    /**
+     * Header height
+     */
+    var headerViewHeight: Float? = null
+
+    fun setHeaderViewHeight(height: Float) {
+        headerViewHeight = height
+    }
 
     /**
      * Whether item order will be kept along re-creations of this LayoutManager with different
@@ -297,12 +309,12 @@ open class SpannedGridLayoutManager(val orientation: Orientation,
         val width = right - left - insetsRect.left - insetsRect.right
         val height = bottom - top - insetsRect.top - insetsRect.bottom
         val layoutParams = view.layoutParams
-        layoutParams.width = width
-        layoutParams.height = height
-        measureChildWithMargins(view, width, height)
+        layoutParams.width = width.toInt()
+        layoutParams.height = height.toInt()
+        measureChildWithMargins(view, width.toInt(), height.toInt())
 
         // Cache rect
-        childFrames[position] = Rect(left, top, right, bottom)
+        childFrames[position] = RectF(left, top, right, bottom)
     }
 
     /**
@@ -318,16 +330,16 @@ open class SpannedGridLayoutManager(val orientation: Orientation,
 
             if (orientation == Orientation.VERTICAL) {
                 layoutDecorated(view,
-                        frame.left + paddingLeft,
-                        frame.top - scroll + startPadding,
-                        frame.right + paddingLeft,
-                        frame.bottom - scroll + startPadding)
+                        (frame.left + paddingLeft).toInt(),
+                        (frame.top - scroll + startPadding).toInt(),
+                        (frame.right + paddingLeft).toInt(),
+                        (frame.bottom - scroll + startPadding).toInt())
             } else {
                 layoutDecorated(view,
-                        frame.left - scroll + startPadding,
-                        frame.top + paddingTop,
-                        frame.right - scroll + startPadding,
-                        frame.bottom + paddingTop)
+                        (frame.left - scroll + startPadding).toInt(),
+                        (frame.top + paddingTop).toInt(),
+                        (frame.right - scroll + startPadding).toInt(),
+                        (frame.bottom + paddingTop).toInt())
             }
         }
 
@@ -673,12 +685,12 @@ open class SpannedGridLayoutManager(val orientation: Orientation,
 
     override fun getDecoratedMeasuredWidth(child: View): Int {
         val position = getPosition(child)
-        return childFrames[position]!!.width()
+        return childFrames[position]!!.width().roundToInt()
     }
 
     override fun getDecoratedMeasuredHeight(child: View): Int {
         val position = getPosition(child)
-        return childFrames[position]!!.height()
+        return childFrames[position]!!.height().toInt()
     }
 
     override fun getDecoratedTop(child: View): Int {
@@ -690,7 +702,7 @@ open class SpannedGridLayoutManager(val orientation: Orientation,
             top -= scroll
         }
 
-        return top
+        return top.toInt()
     }
 
     override fun getDecoratedRight(child: View): Int {
@@ -702,7 +714,7 @@ open class SpannedGridLayoutManager(val orientation: Orientation,
             right -= scroll - getPaddingStartForOrientation()
         }
 
-        return right
+        return right.toInt()
     }
 
     override fun getDecoratedLeft(child: View): Int {
@@ -714,7 +726,7 @@ open class SpannedGridLayoutManager(val orientation: Orientation,
             left -= scroll
         }
 
-        return left
+        return left.toInt()
     }
 
     override fun getDecoratedBottom(child: View): Int {
@@ -725,7 +737,7 @@ open class SpannedGridLayoutManager(val orientation: Orientation,
         if (orientation == Orientation.VERTICAL) {
             bottom -= scroll - getPaddingStartForOrientation()
         }
-        return bottom
+        return bottom.toInt()
     }
 
     //==============================================================================================
@@ -833,7 +845,7 @@ open class RectsHelper(val layoutManager: SpannedGridLayoutManager,
     /**
      * Comparator to sort free rects by position, based on orientation
      */
-    private val rectComparator = Comparator<Rect> { rect1, rect2 ->
+    private val rectComparator = Comparator<RectF> { rect1, rect2 ->
         when (orientation) {
             SpannedGridLayoutManager.Orientation.VERTICAL -> {
                 if (rect1.top == rect2.top) {
@@ -874,12 +886,12 @@ open class RectsHelper(val layoutManager: SpannedGridLayoutManager,
     /**
      * Cache of rects that are already used
      */
-    private val rectsCache = mutableMapOf<Int, Rect>()
+    private val rectsCache = mutableMapOf<Int, RectF>()
 
     /**
      * List of rects that are still free
      */
-    private val freeRects = mutableListOf<Rect>()
+    private val freeRects = mutableListOf<RectF>()
 
     /**
      * Free space to divide in spans
@@ -901,7 +913,7 @@ open class RectsHelper(val layoutManager: SpannedGridLayoutManager,
     /**
      * Start row/column for free rects
      */
-    val start: Int
+    val start: Float
         get() {
             return if (orientation == SpannedGridLayoutManager.Orientation.VERTICAL) {
                 freeRects[0].top * itemSize
@@ -913,7 +925,7 @@ open class RectsHelper(val layoutManager: SpannedGridLayoutManager,
     /**
      * End row/column for free rects
      */
-    val end: Int
+    val end: Float
         get() {
             return if (orientation == SpannedGridLayoutManager.Orientation.VERTICAL) {
                 (freeRects.last().top + 1) * itemSize
@@ -925,9 +937,9 @@ open class RectsHelper(val layoutManager: SpannedGridLayoutManager,
     init {
         // There will always be a free rect that goes to Int.MAX_VALUE
         val initialFreeRect = if (orientation == SpannedGridLayoutManager.Orientation.VERTICAL) {
-            Rect(0, 0, layoutManager.spans, Int.MAX_VALUE)
+            RectF(0f, 0f, layoutManager.spans.toFloat(), Float.MAX_VALUE)
         } else {
-            Rect(0, 0, Int.MAX_VALUE, layoutManager.spans)
+            RectF(0F, 0F, Float.MAX_VALUE, layoutManager.spans.toFloat())
         }
         freeRects.add(initialFreeRect)
     }
@@ -935,39 +947,54 @@ open class RectsHelper(val layoutManager: SpannedGridLayoutManager,
     /**
      * Get a free rect for the given span and item position
      */
-    fun findRect(position: Int, spanSize: SpanSize): Rect {
-        return rectsCache[position] ?: findRectForSpanSize(spanSize)
+    fun findRect(position: Int, spanSize: SpanSize): RectF {
+        return rectsCache[position] ?: findRectForSpanSize(position, spanSize)
     }
 
     /**
      * Find a valid free rect for the given span size
      */
-    protected open fun findRectForSpanSize(spanSize: SpanSize): Rect {
+    protected open fun findRectForSpanSize(position: Int, spanSize: SpanSize): RectF {
         val lane = freeRects.first {
-            val itemRect = Rect(it.left, it.top, it.left + spanSize.width, it.top + spanSize.height)
+            val itemRect = RectF(
+                    it.left,
+                    it.top,
+                    it.left + spanSize.width,
+                    it.top + spanSize.height
+            )
             it.contains(itemRect)
         }
-
-        return Rect(lane.left, lane.top, lane.left + spanSize.width, lane.top + spanSize.height)
+        val requiredHeight = if (layoutManager.headerViewHeight != null)
+            layoutManager.headerViewHeight!! / (layoutManager.width / layoutManager.spans)
+        else
+            null
+        return RectF(lane.left,
+                lane.top,
+                lane.left + spanSize.width,
+                if (position == 0 && requiredHeight != null)
+                    lane.top + requiredHeight
+                else
+                    lane.top + spanSize.height)
+//        return RectF(lane.left, lane.top, lane.left + spanSize.width, lane.top + spanSize.height)
     }
 
     /**
      * Push this rect for the given position, subtract it from [freeRects]
      */
-    fun pushRect(position: Int, rect: Rect) {
+    fun pushRect(position: Int, rect: RectF) {
         val start = if (orientation == SpannedGridLayoutManager.Orientation.VERTICAL)
             rect.top else
             rect.left
-        val startRow = rows[start]?.toMutableSet() ?: mutableSetOf()
+        val startRow = rows[start.toInt()]?.toMutableSet() ?: mutableSetOf()
         startRow.add(position)
-        rows[start] = startRow
+        rows[start.toInt()] = startRow
 
         val end = if (orientation == SpannedGridLayoutManager.Orientation.VERTICAL)
             rect.bottom else
             rect.right
-        val endRow = rows[end - 1]?.toMutableSet() ?: mutableSetOf()
+        val endRow = rows[(end - 1).toInt()]?.toMutableSet() ?: mutableSetOf()
         endRow.add(position)
-        rows[end - 1] = endRow
+        rows[(end - 1).toInt()] = endRow
 
         rectsCache[position] = rect
         subtract(rect)
@@ -980,11 +1007,11 @@ open class RectsHelper(val layoutManager: SpannedGridLayoutManager,
     /**
      * Remove this rect from the [freeRects], merge and reorder new free rects
      */
-    protected open fun subtract(subtractedRect: Rect) {
+    protected open fun subtract(subtractedRect: RectF) {
         val interestingRects = freeRects.filter { it.isAdjacentTo(subtractedRect) || it.intersects(subtractedRect) }
 
-        val possibleNewRects = mutableListOf<Rect>()
-        val adjacentRects = mutableListOf<Rect>()
+        val possibleNewRects = mutableListOf<RectF>()
+        val adjacentRects = mutableListOf<RectF>()
 
         for (free in interestingRects) {
             if (free.isAdjacentTo(subtractedRect) && !subtractedRect.contains(free)) {
@@ -993,19 +1020,19 @@ open class RectsHelper(val layoutManager: SpannedGridLayoutManager,
                 freeRects.remove(free)
 
                 if (free.left < subtractedRect.left) { // Left
-                    possibleNewRects.add(Rect(free.left, free.top, subtractedRect.left, free.bottom))
+                    possibleNewRects.add(RectF(free.left, free.top, subtractedRect.left, free.bottom))
                 }
 
                 if (free.right > subtractedRect.right) { // Right
-                    possibleNewRects.add(Rect(subtractedRect.right, free.top, free.right, free.bottom))
+                    possibleNewRects.add(RectF(subtractedRect.right, free.top, free.right, free.bottom))
                 }
 
                 if (free.top < subtractedRect.top) { // Top
-                    possibleNewRects.add(Rect(free.left, free.top, free.right, subtractedRect.top))
+                    possibleNewRects.add(RectF(free.left, free.top, free.right, subtractedRect.top))
                 }
 
                 if (free.bottom > subtractedRect.bottom) { // Bottom
-                    possibleNewRects.add(Rect(free.left, subtractedRect.bottom, free.right, free.bottom))
+                    possibleNewRects.add(RectF(free.left, subtractedRect.bottom, free.right, free.bottom))
                 }
             }
         }
