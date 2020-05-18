@@ -9,7 +9,7 @@ import com.arasthel.spannedgridlayoutmanager.SpannedGridLayoutManager.Orientatio
 /**
  * Created by Jorge Martín on 24/5/17.
  */
-class MainActivity: android.support.v7.app.AppCompatActivity() {
+class MainActivity : android.support.v7.app.AppCompatActivity() {
 
     val recyclerview: RecyclerView by lazy { findViewById<RecyclerView>(R.id.recyclerView) }
 
@@ -18,7 +18,7 @@ class MainActivity: android.support.v7.app.AppCompatActivity() {
 
         setContentView(R.layout.activity_main)
 
-        val spannedGridLayoutManager = SpannedGridLayoutManager(orientation = VERTICAL, spans = 4)
+        val spannedGridLayoutManager = SpannedGridLayoutManager(orientation = VERTICAL, spans = 3)
         spannedGridLayoutManager.itemOrderIsStable = true
 
         recyclerview.layoutManager = spannedGridLayoutManager
@@ -34,12 +34,13 @@ class MainActivity: android.support.v7.app.AppCompatActivity() {
         }
 
         spannedGridLayoutManager.spanSizeLookup = SpannedGridLayoutManager.SpanSizeLookup { position ->
-            if (position == 0){
-                SpanSize(4, 1, 150f)
-            } else if (adapter.clickedItems[position]) {
-                SpanSize(2, 2)
-            } else {
-                SpanSize(1, 1)
+            when (position % 8) {
+                0, 5 ->
+                    SpanSize(2, 2)
+                3, 7 ->
+                    SpanSize(3, 2)
+                else ->
+                    SpanSize(1, 1)
             }
         }
         recyclerview.adapter = adapter
