@@ -2,9 +2,11 @@ package com.arasthel.spannedgridlayoutmanager.sample
 
 import android.os.Bundle
 import android.support.v7.widget.RecyclerView
+import android.widget.TextView
+import android.widget.Toast
 import com.arasthel.spannedgridlayoutmanager.SpanSize
 import com.arasthel.spannedgridlayoutmanager.SpannedGridLayoutManager
-import com.arasthel.spannedgridlayoutmanager.SpannedGridLayoutManager.Orientation.*
+import com.arasthel.spannedgridlayoutmanager.SpannedGridLayoutManager.Orientation.VERTICAL
 
 /**
  * Created by Jorge Martín on 24/5/17.
@@ -12,6 +14,7 @@ import com.arasthel.spannedgridlayoutmanager.SpannedGridLayoutManager.Orientatio
 class MainActivity : android.support.v7.app.AppCompatActivity() {
 
     val recyclerview: RecyclerView by lazy { findViewById<RecyclerView>(R.id.recyclerView) }
+    val tvGetLayout: TextView by lazy { findViewById<TextView>(R.id.tv_get_layout) }
 
     override fun onCreate(savedInstanceState: android.os.Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,6 +47,11 @@ class MainActivity : android.support.v7.app.AppCompatActivity() {
             }
         }
         recyclerview.adapter = adapter
+
+        tvGetLayout.setOnClickListener {
+            val position = spannedGridLayoutManager.firstVisible2x2LayoutPosition
+            Toast.makeText(this, position.toString(), Toast.LENGTH_LONG).show()
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle?) {

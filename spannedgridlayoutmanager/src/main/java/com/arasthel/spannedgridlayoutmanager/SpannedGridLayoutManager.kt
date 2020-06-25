@@ -64,6 +64,24 @@ open class SpannedGridLayoutManager(val orientation: Orientation,
     protected lateinit var rectsHelper: RectsHelper
 
     /**
+     * First visible position of 2x2 layout - changes with recycling
+     */
+    open val firstVisible2x2LayoutPosition: Int
+        get() {
+            if (childCount <= 0) {
+                return -1
+            }
+            for (i in 0 until childCount - 1) {
+                val position = getPosition(getChildAt(i)!!)
+                val spanSize = spanSizeLookup?.getSpanSize(position)
+                if (spanSize != null && spanSize.height == 2 && spanSize.width == 2) {
+                    return position
+                }
+            }
+            return -1
+        }
+
+    /**
      * First visible position in layout - changes with recycling
      */
     open val firstVisiblePosition: Int
