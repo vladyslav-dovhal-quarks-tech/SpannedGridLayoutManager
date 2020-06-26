@@ -653,8 +653,8 @@ open class SpannedGridLayoutManager(val orientation: Orientation,
      * @param recycler Recycler
      */
     protected open fun fillBefore(recycler: RecyclerView.Recycler) {
-        val headerHeight = if (rectsHelper.extraHeight != null) (rectsHelper.extraHeight)?.toInt()!! else 0
-        val currentRow = (scroll - getPaddingStartForOrientation() - headerHeight) / rectsHelper.itemSize
+        val extraHeight = if (rectsHelper.dynamicExtraHeight != null) (rectsHelper.dynamicExtraHeight)?.toInt()!! else 0
+        val currentRow = (scroll - getPaddingStartForOrientation() - extraHeight) / rectsHelper.itemSize
         val lastRow = (scroll + size - getPaddingStartForOrientation()) / rectsHelper.itemSize
 
         for (row in (currentRow until lastRow).reversed()) {
@@ -961,7 +961,7 @@ open class RectsHelper(val layoutManager: SpannedGridLayoutManager,
         return rectsCache[position] ?: findRectForSpanSize(position, spanSize)
     }
 
-    var extraHeight: Float? = null
+    var dynamicExtraHeight: Float? = null
 
     /**
      * Find a valid free rect for the given span size
@@ -977,14 +977,14 @@ open class RectsHelper(val layoutManager: SpannedGridLayoutManager,
             it.contains(itemRect)
         }
         //Calculate view height dynamically
-        val headerHeight = if (layoutManager.spanSizeLookup?.getSpanSize(position)?.viewHeight != null) {
+        val dynamicHeight = if (layoutManager.spanSizeLookup?.getSpanSize(position)?.viewHeight != null) {
             layoutManager.spanSizeLookup?.getSpanSize(position)?.viewHeight!! / (layoutManager.width / layoutManager.spans)
         } else {
             null
         }
-        headerHeight?.let {//
-            extraHeight = if (extraHeight != null) {
-                extraHeight?.plus(layoutManager.spanSizeLookup?.getSpanSize(position)?.viewHeight!!)
+        dynamicHeight?.let {//
+            dynamicExtraHeight = if (dynamicExtraHeight != null) {
+                dynamicExtraHeight?.plus(layoutManager.spanSizeLookup?.getSpanSize(position)?.viewHeight!!)
             } else {
                 layoutManager.spanSizeLookup?.getSpanSize(position)?.viewHeight!!
             }
@@ -992,8 +992,8 @@ open class RectsHelper(val layoutManager: SpannedGridLayoutManager,
         return RectF(lane.left,
                 lane.top,
                 lane.left + spanSize.width,
-                if (headerHeight != null)
-                    lane.top + headerHeight
+                if (dynamicHeight != null)
+                    lane.top + dynamicHeight
                 else
                     lane.top + spanSize.height)
 //        return RectF(lane.left, lane.top, lane.left + spanSize.width, lane.top + spanSize.height)
