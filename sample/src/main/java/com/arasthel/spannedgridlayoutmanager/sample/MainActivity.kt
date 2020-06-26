@@ -37,13 +37,17 @@ class MainActivity : android.support.v7.app.AppCompatActivity() {
         }
 
         spannedGridLayoutManager.spanSizeLookup = SpannedGridLayoutManager.SpanSizeLookup { position ->
-            when (position % 8) {
-                0, 5 ->
-                    SpanSize(2, 2)
-                3, 7 ->
-                    SpanSize(3, 2)
-                else ->
-                    SpanSize(1, 1)
+            if (position == 0) {
+                SpanSize(3, 1, 200f)
+            } else {
+                when (position % 8) {
+                    0, 5 ->
+                        SpanSize(2, 2)
+                    3, 7 ->
+                        SpanSize(3, 2)
+                    else ->
+                        SpanSize(1, 1)
+                }
             }
         }
         recyclerview.adapter = adapter
