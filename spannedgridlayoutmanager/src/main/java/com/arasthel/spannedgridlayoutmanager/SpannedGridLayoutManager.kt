@@ -674,7 +674,8 @@ open class SpannedGridLayoutManager(val orientation: Orientation,
     protected open fun fillAfter(recycler: RecyclerView.Recycler) {
         val visibleEnd = scroll + size
 
-        val lastAddedRow = layoutEnd / rectsHelper.itemSize
+        val extraHeight = if (rectsHelper.dynamicExtraHeight != null) (rectsHelper.dynamicExtraHeight)?.toInt()!! else 0
+        val lastAddedRow = (layoutEnd - extraHeight) / rectsHelper.itemSize
         val lastVisibleRow = visibleEnd / rectsHelper.itemSize
 
         for (rowIndex in lastAddedRow..lastVisibleRow) {
