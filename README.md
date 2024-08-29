@@ -1,4 +1,4 @@
-[ ![Download](https://api.bintray.com/packages/arasthel/maven/spannedgridlayoutmanager/images/download.svg) ](https://bintray.com/arasthel/maven/spannedgridlayoutmanager/_latestVersion) [![API](https://img.shields.io/badge/API-14%2B-brightgreen.svg?style=flat)](https://android-arsenal.com/api?level=14) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[//]: # ([ ![Download]&#40;https://api.bintray.com/packages/arasthel/maven/spannedgridlayoutmanager/images/download.svg&#41; ]&#40;https://bintray.com/arasthel/maven/spannedgridlayoutmanager/_latestVersion&#41; [![API]&#40;https://img.shields.io/badge/API-14%2B-brightgreen.svg?style=flat&#41;]&#40;https://android-arsenal.com/api?level=14&#41; [![License: MIT]&#40;https://img.shields.io/badge/License-MIT-yellow.svg&#41;]&#40;https://opensource.org/licenses/MIT&#41;)
 
 # SpannedGridLayoutManager
 
